@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "Vigenere.h"
+#include "Vigenere.cpp"
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -157,7 +157,8 @@ SCENARIO("Test Vigenere"){
         WHEN("Test cryptoStream minimum encrypt with default Flags and default case"){
 
             modeIn = Vigenere::MODE::ENCRYPT;
-
+            analyzer.clear();
+            analyzer.seekg(0);
             THEN("empty Stream is ok"){
                 key = "Passwort";
 
@@ -174,12 +175,15 @@ SCENARIO("Test Vigenere"){
 
                 CHECK_THROWS_AS(Vigenere::cryptoStream(analyzer, key, modeIn), std::invalid_argument);
             }
-            THEN("Mode have to be set"){
+            THEN("Mode have to be set else encrypt"){
                 analyzer = std::istringstream("Test text");
                 key = "Passwort";
-                Vigenere::MODE modeInEmpty;
-                CAPTURE(modeInEmpty);
-                CHECK_THROWS_AS(Vigenere::cryptoStream(analyzer, key, modeInEmpty), std::invalid_argument);
+                Vigenere::MODE modeInEmpty; // same as ENCRYPT
+                std::string result1 = Vigenere::cryptoStream(analyzer, key, modeInEmpty).str();
+                analyzer.seekg(0);
+                std::string result2 = Vigenere::cryptoStream(analyzer, key, Vigenere::MODE::ENCRYPT).str();
+                CHECK(modeInEmpty == Vigenere::MODE::ENCRYPT);
+                CHECK(result1 == result2);
             }
             THEN("Happy path with string"){
                 analyzer = std::istringstream("CRYPTOISSHORTFORCRYPTOGRAPHY");
@@ -193,7 +197,7 @@ SCENARIO("Test Vigenere"){
         WHEN("Test cryptoStream minimum decrypt with default Flags and default case"){
 
             modeIn = Vigenere::MODE::DECRYPT;
-
+        
             THEN("Happy path with string"){
                 analyzer = std::istringstream("CSASTPKVSIQUTGQUCSASTPIUAQJB");
                 key = "abcd";
@@ -209,6 +213,9 @@ SCENARIO("Test Vigenere"){
             key = "abcd";
             modeIn = Vigenere::MODE::ENCRYPT;
             caseIn = Vigenere::CASE::LOWER;
+
+            analyzer.clear();
+            analyzer.seekg(0);
 
             THEN("flag ignore special characters only"){
                 analyzer = std::istringstream("- .1+");
@@ -242,6 +249,9 @@ SCENARIO("Test Vigenere"){
             key = "abcd";
             modeIn = Vigenere::MODE::ENCRYPT;
             caseIn = Vigenere::CASE::UPPER;
+
+            analyzer.clear();
+            analyzer.seekg(0);
 
             THEN("flag ignore special characters mixed with letters"){
                 analyzer = std::istringstream("CRYPTO IS-SHORT.FOR#CRYPTOGRAPHY");
