@@ -4,10 +4,6 @@
 > Just import it to use it
 
 ## Import
-```
-#import "Vigenere.cpp"
-```
-
 > You need `Vigenere.cpp` and also `Vigenere.h` in your folder
 
 > `Vigenere.cpp` includes `Vigenere.h` so you just need one import statement
